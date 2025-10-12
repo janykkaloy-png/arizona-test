@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arizona RP — Тест Военной Полиции</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Arizona RP — Тест Военной Полиции</h1>
+      <div class="tabs">
+        <div class="tab active" data-tab="test">Тест</div>
+        <div class="tab" data-tab="admin">Админ</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card" id="mainArea"></div>
+
+      <div class="card">
+        <div class="small">Инструкция</div>
+        <p class="small">
+          Введите имя, начните тест. После завершения — скачайте отчёт (.docx).  
+          Администратор может редактировать вопросы во вкладке «Админ».
+        </p>
+        <div class="buttons">
+          <input type="text" id="username" placeholder="Ваше имя" style="width:100%;padding:8px;border-radius:6px;border:none;">
+          <button class="btn" id="startBtn">Начать тест</button>
+          <button class="btn ghost" id="resetBtn">Сбросить базу</button>
+          <button class="btn ghost" id="exportBtn">Экспорт JSON</button>
+          <button class="btn ghost" id="importBtn">Импорт JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>© Arizona RP | Военная Полиция</footer>
+  </div>
+
+  <!-- FileSaver для скачивания .docx (используем простое текстовое содержимое в docx-контейнере) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <!-- Основной скрипт приложения -->
+  <script src="app.js" defer></script>
+</body>
+</html>
