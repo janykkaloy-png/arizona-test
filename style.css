@@ -1,0 +1,164 @@
+:root {
+  --bg: #0f1724;
+  --card: #111827;
+  --accent: #0ea5a4;
+  --text: #e6eef6;
+  --text-muted: #999;
+  --btn-hover: #14b8a6;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app {
+  width: 100%;
+  max-width: 900px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+}
+
+input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+.btn {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+.btn.small {
+  padding: 4px 10px;
+  font-size: 0.85em;
+}
+
+.question-box {
+  background: rgba(255,255,255,0.05);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+table th,
+table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 8px;
+  text-align: left;
+}
+
+.report {
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* --- Админка: список файлов --- */
+#fileList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#fileViewer {
+  background: var(--card);
+  color: var(--text);
+  padding: 16px;
+  border-radius: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+  font-family: monospace;
+  display: none;
+  width: 100%;
+}
+
+/* --- Закрытие документа --- */
+#fileViewer button#closeViewerBtn {
+  margin-left: auto;
+}
+
+footer {
+  margin-top: 20px;
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+}
