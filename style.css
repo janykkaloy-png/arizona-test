@@ -98,6 +98,11 @@ input[type="text"]::placeholder {
   color: var(--text);
 }
 
+.btn.small {
+  padding: 4px 10px;
+  font-size: 0.85em;
+}
+
 .question-box {
   background: rgba(255,255,255,0.05);
   padding: 16px;
@@ -110,8 +115,8 @@ table {
   border-collapse: collapse;
   margin-top: 12px;
 }
-
-table th, table td {
+table th,
+table td {
   border: 1px solid rgba(255,255,255,0.2);
   padding: 8px;
   text-align: left;
@@ -125,6 +130,30 @@ table th, table td {
   white-space: pre-wrap;
   max-height: 400px;
   overflow-y: auto;
+}
+
+/* --- Админка: список файлов --- */
+#fileList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#fileViewer {
+  background: var(--card);
+  color: var(--text);
+  padding: 16px;
+  border-radius: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+  font-family: monospace;
+  display: none;
+  width: 100%;
+}
+
+/* --- Закрытие документа --- */
+#fileViewer button#closeViewerBtn {
+  margin-left: auto;
 }
 
 footer {
