@@ -1,7 +1,8 @@
+// === НАСТРОЙКИ ===
 const TEST_COUNT = 15;
-const USERS_KEY = "arizona_vp_users";
 const ADMIN_PASSWORD = "12345";
 
+// === СПИСОК ВОПРОСОВ ===
 const questions = [
   { text: "Что обязаны знать и соблюдать сотрудники Военной полиции?", correct: "устав вп, ук, ак, фп, конституция" },
   { text: "Как должны разговаривать сотрудники военной полиции?", correct: "уважительно в деловом тоне" },
@@ -22,41 +23,33 @@ const questions = [
 
 let test = null;
 
-/* --- Helpers --- */
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+// === ВСПОМОГАТЕЛЬНЫЕ ===
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
   }
   return arr;
 }
 
-function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
-
-function saveUser(username, score, answers) {
-  const users = getUsers();
-  users[username] = { score, answers, date: new Date().toLocaleString() };
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+function escapeHtml(str){
+  if(typeof str!=="string") return str;
+  return str.replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
-function escapeHtml(str) {
-  if (typeof str !== "string") return str;
-  return str.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-}
-
-/* --- UI Init --- */
-function initUI() {
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      const tabName = tab.dataset.tab;
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+// === ИНИЦИАЛИЗАЦИЯ ===
+function initUI(){
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      const tabName=tab.dataset.tab;
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
       tab.classList.add("active");
 
-      if (tabName === "admin") {
-        const pwd = prompt("Введите пароль для Админки:");
-        if (pwd !== ADMIN_PASSWORD) {
+      if(tabName==="admin"){
+        const pwd=prompt("Введите пароль для Админки:");
+        if(pwd!==ADMIN_PASSWORD){
           alert("Неверный пароль!");
-          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
           document.querySelector(".tab[data-tab='test']").classList.add("active");
           render("test");
           return;
@@ -67,134 +60,181 @@ function initUI() {
     });
   });
 
-  const startBtn = document.getElementById("startBtn");
-  if (startBtn) startBtn.addEventListener("click", startTest);
+  const usernameInput = document.getElementById("username");
+  const note = document.createElement("p");
+  note.className = "small";
+  note.style.marginTop = "4px";
+  note.style.color = "#999";
+  note.innerHTML = 'Если вы проходите переаттестацию, напишите это рядом с вашим ником:<br><em>Ник на англ. - Переаттестация 1-3</em>';
+  usernameInput.parentNode.insertBefore(note, usernameInput.nextSibling);
 
+  document.getElementById("startBtn").addEventListener("click", startTest);
   render("test");
 }
 
-/* --- Start Test --- */
-function startTest() {
-  const usernameEl = document.getElementById("username");
-  const username = usernameEl.value.trim();
-  if (!username) { alert("Введите имя!"); return; }
+// === СТАРТ ТЕСТА ===
+function startTest(){
+  const username=document.getElementById("username").value.trim();
+  if(!username){alert("Введите имя!"); return;}
 
-  // Перемешиваем вопросы для теста
-  const shuffledQuestions = shuffleArray([...questions]);
-
-  test = { username, current: 0, answers: {}, shuffledQuestions };
-  render("test");
+  const shuffledQuestions=shuffleArray([...questions]).slice(0,TEST_COUNT);
+  test={username,current:0,answers:{},shuffledQuestions};
+  renderTest();
 }
 
-/* --- Render --- */
-function render(tab) {
-  const area = document.getElementById("mainArea");
-  if (!area) return;
-  if (tab === "admin") renderAdmin(area);
-  else renderTest(area);
+// --- РЕНДЕР ---
+function render(tab){
+  const area=document.getElementById("mainArea");
+  if(!area) return;
+  if(tab==="admin") renderAdmin(area);
+  else renderTest();
 }
 
-/* --- Test Rendering --- */
-function renderTest(area) {
-  if (!test) { area.innerHTML = `<h2>Нажмите «Начать тест»</h2>`; return; }
-  const q = test.shuffledQuestions[test.current];
-  area.innerHTML = `
+// --- ТЕСТ ---
+function renderTest(){
+  const area=document.getElementById("mainArea");
+  if(!test){ area.innerHTML=`<h2>Нажмите «Начать тест»</h2>`; return; }
+
+  const q=test.shuffledQuestions[test.current];
+  area.innerHTML=`
     <div class="question-box">
-      <h3>${test.current + 1}/${TEST_COUNT}: ${q.text}</h3>
-      <input type="text" id="answerInput" placeholder="Введите ответ..." value="${(test.answers[test.current] || '')}">
-      <div style="margin-top:12px;display:flex;justify-content:flex-end;">
-        <button class="btn" id="nextBtn">${test.current < TEST_COUNT - 1 ? "Далее" : "Закончить"}</button>
+      <h3>${test.current+1}/${TEST_COUNT}: ${q.text}</h3>
+      <input type="text" id="answerInput" placeholder="Введите ответ..." value="${test.answers[test.current]||''}">
+      <div>
+        <button class="btn" id="nextBtn">${test.current<TEST_COUNT-1?"Далее":"Закончить"}</button>
       </div>
     </div>
   `;
-
-  const input = document.getElementById("answerInput");
-  if (input) input.addEventListener("input", e => { test.answers[test.current] = e.target.value.trim().toLowerCase(); });
-
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.addEventListener("click", nextQuestion);
+  document.getElementById("answerInput").addEventListener("input",e=>{
+    test.answers[test.current]=e.target.value.trim().toLowerCase();
+  });
+  document.getElementById("nextBtn").addEventListener("click",nextQuestion);
 }
 
-function nextQuestion() {
-  if (!test) return;
-  if (test.current < TEST_COUNT - 1) { test.current++; render("test"); }
+function nextQuestion(){
+  if(!test) return;
+  if(test.current<TEST_COUNT-1){ test.current++; renderTest();}
   else finishTest();
 }
 
-function finishTest() {
-  if (!test) return;
-  let correct = 0;
-  test.shuffledQuestions.forEach((q,i) => { if ((test.answers[i]||"") === q.correct.toLowerCase()) correct++; });
-  saveUser(test.username, correct, test.answers);
+// --- ЗАВЕРШЕНИЕ ТЕСТА ---
+function finishTest(){
+  if(!test) return;
 
-  const area = document.getElementById("mainArea");
-  area.innerHTML = `
+  let reportText=`Тест завершён\nИмя: ${test.username}\n\nОтветы:\n`;
+  test.shuffledQuestions.forEach((q,i)=>{
+    const ans=test.answers[i]||"";
+    reportText+=`${i+1}. ${q.text}\nВаш ответ: ${ans}\nПравильный: ${q.correct}\n\n`;
+  });
+
+  const blob=new Blob([reportText],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+  saveAs(blob,`${test.username}_тест.docx`);
+
+  const area=document.getElementById("mainArea");
+  area.innerHTML=`
     <div class="question-box">
       <h2>Тест завершён</h2>
-      <p>${escapeHtml(test.username)}, вы ответили правильно на ${correct} из ${TEST_COUNT}</p>
-      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
+      <p>${escapeHtml(test.username)}, скачайте файл и отправьте администратору.</p>
+      <div>
         <button class="btn" id="restartBtn">Пройти снова</button>
       </div>
     </div>
   `;
-  const restartBtn = document.getElementById("restartBtn");
-  if (restartBtn) restartBtn.addEventListener("click", () => { test=null; render("test"); });
+  document.getElementById("restartBtn").addEventListener("click",()=>{ test=null; renderTest(); });
 }
 
-/* --- Admin Rendering --- */
-function renderAdmin(area) {
-  const users = getUsers();
-  if (!Object.keys(users).length) { area.innerHTML = `<p>История пуста.</p>`; return; }
+// --- АДМИН ---
+function renderAdmin(area){
+  area.innerHTML=`
+    <h2>Админка — Загрузка результатов</h2>
+    <p>Здесь можно загрузить файлы пользователей, посмотреть ответы, отметить пройденные тесты или удалить файл.</p>
 
-  let html = `<h2>История прохождения теста</h2>
-  <table>
-    <tr><th>Имя</th><th>Дата</th><th>Результат</th></tr>
-    ${Object.entries(users).map(([name,u]) => `<tr><td>${escapeHtml(name)}</td><td>${u.date}</td><td>${u.score}/${TEST_COUNT}</td></tr>`).join("")}
-  </table>
-  <div style="display:flex;gap:8px;margin-top:12px;">
-    <button class="btn" id="downloadReport">Скачать отчёт (.docx)</button>
-    <button class="btn ghost" id="viewReportBtn">Показать подробный отчёт</button>
-  </div>
-  <div id="reportArea" class="report" style="display:none;"></div>`;
+    <input type="file" id="fileInput" multiple style="display:none;">
+    <button class="btn" id="chooseFileBtn">Выбрать файл</button>
 
-  area.innerHTML = html;
+    <ul id="fileList"></ul>
 
-  const dl = document.getElementById("downloadReport");
-  if (dl) dl.addEventListener("click", downloadReport);
+    <div id="fileViewer" style="display:none;"></div>
+    <button class="btn" id="clearAllBtn">Удалить все записи</button>
+  `;
 
-  const vr = document.getElementById("viewReportBtn");
-  if (vr) vr.addEventListener("click", () => {
-    const ra = document.getElementById("reportArea");
-    if (!ra) return;
-    if (ra.style.display==="none"||ra.style.display==="") {
-      ra.style.display="block";
-      ra.textContent = buildReportText();
-    } else { ra.style.display="none"; }
+  const fileInput = document.getElementById("fileInput");
+  const chooseFileBtn = document.getElementById("chooseFileBtn");
+  const fileList = document.getElementById("fileList");
+  const fileViewer = document.getElementById("fileViewer");
+  let savedFiles = JSON.parse(localStorage.getItem("adminFiles") || "[]");
+
+  chooseFileBtn.addEventListener("click", ()=> fileInput.click());
+
+  fileInput.addEventListener("change", e=>{
+    const files = e.target.files;
+    Array.from(files).forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        savedFiles.push({name:file.name, passed:false, content:evt.target.result});
+        localStorage.setItem("adminFiles", JSON.stringify(savedFiles));
+        renderFiles();
+      };
+      reader.readAsText(file);
+    });
+    fileInput.value="";
+  });
+
+  function renderFiles(){
+    fileList.innerHTML = savedFiles.map((f,i)=>`
+      <li>
+        <strong>${escapeHtml(f.name)}</strong>
+        <input type="checkbox" ${f.passed?"checked":""} data-index="${i}" class="passCheckbox"> Пройден
+        <button class="btn small openBtn" data-index="${i}">Открыть</button>
+        <button class="btn small delBtn" data-index="${i}">Удалить</button>
+      </li>
+    `).join("");
+
+    document.querySelectorAll(".passCheckbox").forEach(cb=>{
+      cb.addEventListener("change", e=>{
+        const idx = e.target.dataset.index;
+        savedFiles[idx].passed = e.target.checked;
+        localStorage.setItem("adminFiles", JSON.stringify(savedFiles));
+      });
+    });
+
+    document.querySelectorAll(".openBtn").forEach(btn=>{
+      btn.addEventListener("click", e=>{
+        const idx = e.target.dataset.index;
+        const content = savedFiles[idx].content || "";
+        fileViewer.innerHTML = `<pre>${escapeHtml(content)}</pre><button class="btn" id="closeViewerBtn">Закрыть документ</button>`;
+        fileViewer.style.display = "block";
+
+        document.getElementById("closeViewerBtn").addEventListener("click", ()=>{
+          fileViewer.style.display = "none";
+        });
+      });
+    });
+
+    document.querySelectorAll(".delBtn").forEach(btn=>{
+      btn.addEventListener("click", e=>{
+        const idx = e.target.dataset.index;
+        if(confirm(`Удалить файл ${savedFiles[idx].name}?`)){
+          savedFiles.splice(idx,1);
+          localStorage.setItem("adminFiles", JSON.stringify(savedFiles));
+          renderFiles();
+          fileViewer.style.display = "none";
+        }
+      });
+    });
+  }
+
+  renderFiles();
+
+  document.getElementById("clearAllBtn").addEventListener("click", ()=>{
+    if(confirm("Удалить все записи?")){
+      savedFiles = [];
+      localStorage.removeItem("adminFiles");
+      renderFiles();
+      fileViewer.style.display = "none";
+    }
   });
 }
 
-function buildReportText() {
-  const users = getUsers();
-  let text = "Отчёт по тестированию:\n\n";
-  for (const [name,data] of Object.entries(users)) {
-    text += `Имя: ${name}\nДата: ${data.date}\nРезультат: ${data.score}/${TEST_COUNT}\n\n`;
-    Object.keys(data.answers||{}).forEach(i => {
-      const idx = Number(i);
-      text += `${idx+1}. ${questions[idx].text}\nОтвет: ${data.answers[i]}\nПравильный: ${questions[idx].correct}\n\n`;
-    });
-    text += "--------------------------------------\n\n";
-  }
-  return text;
-}
-
-function downloadReport() {
-  const text = buildReportText();
-  const blob = new Blob([text], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "Отчёт_ArizonaRP.docx";
-  a.click();
-}
-
-/* --- Инициализация --- */
+// === СТАРТ ===
 initUI();
